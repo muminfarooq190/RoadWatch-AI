@@ -1,0 +1,41 @@
+camera:
+  # 0 = first local camera; a file path or RTSP/HTTP URL is also accepted.
+  source: 0
+  width: 1920
+  height: 1080
+  process_every_n_frames: 1
+
+detection:
+  vehicle_model: yolo11n.pt
+  plate_model: models/license_plate_detector.pt
+  require_plate_model: false
+  vehicle_confidence: 0.45
+  plate_confidence: 0.40
+  # COCO: car=2, motorcycle=3, bus=5, truck=7
+  vehicle_classes: [2, 3, 5, 7]
+  ocr_languages: [en]
+  ocr_min_confidence: 0.30
+
+speed:
+  # Coordinates are normalized from 0.0 to 1.0.
+  # Swap start_line and end_line for the opposite travel direction.
+  start_line: [[0.08, 0.58], [0.92, 0.58]]
+  end_line: [[0.05, 0.82], [0.95, 0.82]]
+  distance_meters: 12.0
+  speed_limit_kph: 50.0
+  correction_factor: 1.0
+  stale_track_seconds: 10.0
+  minimum_travel_seconds: 0.10
+  maximum_travel_seconds: 10.0
+
+alerts:
+  enabled: false
+  cooldown_seconds: 300
+
+storage:
+  database_path: data/roadwatch.db
+  evidence_directory: data/evidence
+
+runtime:
+  display: false
+  log_level: INFO

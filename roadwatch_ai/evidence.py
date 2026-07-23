@@ -38,8 +38,7 @@ def save_evidence(
         cv2.LINE_AA,
     )
     filename = (
-        f"{occurred_at.strftime('%Y%m%dT%H%M%S_%f')}_"
-        f"track-{observation.track_id}_{plate}.jpg"
+        f"{occurred_at.strftime('%Y%m%dT%H%M%S_%f')}_track-{observation.track_id}_{plate}.jpg"
     )
     path = directory / filename
     if not cv2.imwrite(str(path), output):

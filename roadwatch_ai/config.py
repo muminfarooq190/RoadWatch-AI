@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-
 Point = tuple[float, float]
 Line = tuple[Point, Point]
 
@@ -107,7 +106,9 @@ def load_config(path: str | Path) -> AppConfig:
     try:
         import yaml
     except ImportError as exc:
-        raise RuntimeError("PyYAML is required. Install the project with: pip install -e .") from exc
+        raise RuntimeError(
+            "PyYAML is required. Install the project with: pip install -e ."
+        ) from exc
 
     try:
         from dotenv import load_dotenv
@@ -139,9 +140,7 @@ def load_config(path: str | Path) -> AppConfig:
         ),
         detection=DetectionConfig(
             vehicle_model=str(detection.get("vehicle_model", "yolo11n.pt")),
-            plate_model=str(
-                detection.get("plate_model", "models/license_plate_detector.pt")
-            ),
+            plate_model=str(detection.get("plate_model", "models/license_plate_detector.pt")),
             require_plate_model=bool(detection.get("require_plate_model", False)),
             vehicle_confidence=float(detection.get("vehicle_confidence", 0.45)),
             plate_confidence=float(detection.get("plate_confidence", 0.40)),
@@ -155,9 +154,7 @@ def load_config(path: str | Path) -> AppConfig:
             start_line=_line(
                 speed.get("start_line", [[0.08, 0.58], [0.92, 0.58]]), "speed.start_line"
             ),
-            end_line=_line(
-                speed.get("end_line", [[0.05, 0.82], [0.95, 0.82]]), "speed.end_line"
-            ),
+            end_line=_line(speed.get("end_line", [[0.05, 0.82], [0.95, 0.82]]), "speed.end_line"),
             distance_meters=float(speed.get("distance_meters", 12.0)),
             speed_limit_kph=float(speed.get("speed_limit_kph", 50.0)),
             correction_factor=float(speed.get("correction_factor", 1.0)),
@@ -218,4 +215,6 @@ def validate_config(config: AppConfig) -> None:
             if not value
         ]
         if missing:
-            raise ValueError(f"alerts are enabled but these environment values are missing: {missing}")
+            raise ValueError(
+                f"alerts are enabled but these environment values are missing: {missing}"
+            )

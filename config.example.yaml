@@ -8,6 +8,7 @@ camera:
 detection:
   vehicle_model: yolo11n.pt
   plate_model: models/license_plate_detector.pt
+  # Set true for deployment. OpenCV fallback is provided for setup/testing only.
   require_plate_model: false
   vehicle_confidence: 0.45
   plate_confidence: 0.40

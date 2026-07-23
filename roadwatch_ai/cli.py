@@ -28,6 +28,13 @@ def _parser() -> argparse.ArgumentParser:
 
     doctor_parser = subparsers.add_parser("doctor", help="validate config and dependencies")
     doctor_parser.add_argument("--config", default="config.yaml")
+
+    validate_parser = subparsers.add_parser(
+        "validate-plates", help="measure OCR accuracy on labelled cropped plate images"
+    )
+    validate_parser.add_argument("--config", default="config.yaml")
+    validate_parser.add_argument("--directory", required=True)
+    validate_parser.add_argument("--minimum-accuracy", type=float, default=0.90)
     return parser
 
 
@@ -64,6 +71,22 @@ def _doctor(config_path: str) -> int:
     return 0
 
 
+def _validate_plates(config_path: str, directory: str, minimum_accuracy: float) -> int:
+    if not 0.0 <= minimum_accuracy <= 1.0:
+        raise ValueError("--minimum-accuracy must be between 0 and 1")
+    config = load_config(config_path)
+    from roadwatch_ai.plates import PlateReader, validate_plate_directory
+
+    report = validate_plate_directory(PlateReader(config.detection), directory)
+    print(
+        f"Plate OCR exact-match accuracy: {report.correct}/{report.total} "
+        f"({report.accuracy:.1%}); unknown={report.unknown}"
+    )
+    for filename, expected, actual in report.mistakes:
+        print(f"MISMATCH {filename}: expected={expected} actual={actual}")
+    return 0 if report.accuracy >= minimum_accuracy else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
@@ -74,6 +97,8 @@ def main(argv: list[str] | None = None) -> int:
         )
         if args.command == "doctor":
             return _doctor(args.config)
+        if args.command == "validate-plates":
+            return _validate_plates(args.config, args.directory, args.minimum_accuracy)
 
         from roadwatch_ai.app import run
 

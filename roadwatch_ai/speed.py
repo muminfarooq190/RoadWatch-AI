@@ -27,12 +27,12 @@ def segments_cross(a: Point, b: Point, c: Point, d: Point, epsilon: float = 1e-9
     o4 = _orientation(c, d, b)
 
     if abs(o1) <= epsilon and abs(o2) <= epsilon and abs(o3) <= epsilon and abs(o4) <= epsilon:
-        x_overlap = max(min(a[0], b[0]), min(c[0], d[0])) <= min(
-            max(a[0], b[0]), max(c[0], d[0])
-        ) + epsilon
-        y_overlap = max(min(a[1], b[1]), min(c[1], d[1])) <= min(
-            max(a[1], b[1]), max(c[1], d[1])
-        ) + epsilon
+        x_overlap = (
+            max(min(a[0], b[0]), min(c[0], d[0])) <= min(max(a[0], b[0]), max(c[0], d[0])) + epsilon
+        )
+        y_overlap = (
+            max(min(a[1], b[1]), min(c[1], d[1])) <= min(max(a[1], b[1]), max(c[1], d[1])) + epsilon
+        )
         return x_overlap and y_overlap
 
     return (o1 * o2 <= epsilon) and (o3 * o4 <= epsilon)
@@ -67,9 +67,7 @@ class SpeedEstimator:
         self.maximum_travel_seconds = maximum_travel_seconds
         self._tracks: dict[int, _TrackState] = {}
 
-    def observe(
-        self, track_id: int, point: Point, timestamp: float
-    ) -> SpeedMeasurement | None:
+    def observe(self, track_id: int, point: Point, timestamp: float) -> SpeedMeasurement | None:
         state = self._tracks.get(track_id)
         if state is None:
             self._tracks[track_id] = _TrackState(point, timestamp)

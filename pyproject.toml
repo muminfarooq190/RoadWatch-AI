@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8,<9", "ruff>=0.6,<1"]
+dev = ["pytest>=8,<9", "pytest-cov>=6,<7", "ruff>=0.6,<1"]
 
 [project.scripts]
 roadwatch-ai = "roadwatch_ai.cli:main"
@@ -35,3 +35,16 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers --cov=roadwatch_ai --cov-branch --cov-report=term-missing"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["roadwatch_ai"]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+skip_covered = true

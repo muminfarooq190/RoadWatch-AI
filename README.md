@@ -77,10 +77,38 @@ detection:
   require_plate_model: true
 ```
 
-Without that model, RoadWatch uses the lower portion of the vehicle crop as an explicitly
-labelled fallback. It is useful for pipeline testing, not dependable plate identification.
-EasyOCR then reads the detected plate locally. No plate-recognition API or recurring API bill
-is required.
+Without that model, RoadWatch first searches the vehicle crop for a rectangular, plate-shaped
+region with OpenCV and uses the lower portion only as a last resort. This fallback is useful for
+testing and some controlled camera angles, but a location-specific detector remains the reliable
+deployment option. EasyOCR runs two preprocessing passes, combines split text regions, repairs
+position-specific OCR confusions such as `I/1` and `O/0`, and rejects text that does not match a
+supported Indian registration format. No plate-recognition API or recurring API bill is required.
+
+## Validate plate recognition
+
+Do not judge OCR from one convenient image. Collect cropped plate images from the actual camera
+across daylight, night, glare, rain, motion blur, and different vehicle distances. Name each image
+with its expected plate followed by `__`, for example:
+
+```text
+validation/plates/
+  JK01AB1234__day-01.jpg
+  JK01AB1234__night-01.jpg
+  DL01CD5678__rain-01.png
+```
+
+Then measure exact-match accuracy:
+
+```bash
+python -m roadwatch_ai validate-plates \
+  --config config.yaml \
+  --directory validation/plates \
+  --minimum-accuracy 0.90
+```
+
+The command exits unsuccessfully when accuracy is below the requested threshold and prints every
+mismatch. These must be cropped plate images; full vehicle frames test the detector and need a
+separate labelled video evaluation. A synthetic unit test cannot substitute for this camera data.
 
 ## Camera calibration
 
@@ -147,8 +175,8 @@ python -m roadwatch_ai run --config config.yaml
 # Override the camera source for one run
 python -m roadwatch_ai run --config config.yaml --source sample.mp4 --dry-run
 
-# Run dependency-free core tests
-python -m unittest discover -s tests -v
+# Run the complete suite and enforce 100% line/branch coverage
+python -m pytest
 ```
 
 Press `q` to stop a displayed run.
@@ -192,7 +220,7 @@ roadwatch_ai/
   evidence.py     annotated evidence images
   storage.py      SQLite event history
   config.py       typed YAML and environment config
-tests/            dependency-free unit tests
+tests/            unit, pipeline, and synthetic plate tests
 deploy/           systemd service template
 ```
 
@@ -205,6 +233,7 @@ Before relying on an installation:
 - [ ] 25 FPS or higher with stable timestamps
 - [ ] sufficient pixels on every plate
 - [ ] location-specific plate detector
+- [ ] plate OCR validation set meets the configured exact-match threshold
 - [ ] daylight, rain, glare, occlusion, and night validation
 - [ ] at least 50–100 known-speed validation passes per lane/direction
 - [ ] false alert and duplicate alert review

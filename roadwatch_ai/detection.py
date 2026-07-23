@@ -11,7 +11,9 @@ class VehicleTracker:
         try:
             from ultralytics import YOLO
         except ImportError as exc:
-            raise RuntimeError("Ultralytics is missing. Install the project with: pip install -e .") from exc
+            raise RuntimeError(
+                "Ultralytics is missing. Install the project with: pip install -e ."
+            ) from exc
 
         self._model = YOLO(config.vehicle_model)
         self._confidence = config.vehicle_confidence
